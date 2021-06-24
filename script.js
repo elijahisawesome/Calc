@@ -6,34 +6,15 @@ const AC = document.querySelector('.clear');
 
 
 
-let prevNum = 0;
-let curNum = '';
-let curOp;
+let num1 = '';
+let num2 = '';
+let runningTotal = 0;
+let curOp = null;
 let prevButton = '';
-let operated = false;
 
-const calculator = {
-    state : "fresh",
-    states: {
-        fresh: {
-            onEnter: nums.forEach(num => {
-                num.addEventListener('click', this.queueNum);
-            }),
-            queueNum: changeState("accState1", e)
-        },
-        accState1 : {
 
-        },
-        accState2: {
 
-        },
-        total: {
 
-        }
-    }
-}
-
-/*
 
 nums.forEach(num =>{
 num.addEventListener('click', queueNum);
@@ -48,98 +29,120 @@ AC.addEventListener('click', clear);
 
 
 function add(a,b){
-    prevNum = (parseInt(a)+parseInt(b));
-    display.value=`${prevNum}`;
+    runningTotal = a+b;
+    display.value=`${runningTotal}`;
 }
-function subtract(b,a){
-    prevNum = (parseInt(a)-parseInt(b));
-    display.value=`${prevNum}`;
+function subtract(a,b){
+    runningTotal = a-b;
+    display.value=`${runningTotal}`;
 }
 function multiply(a,b){
-    prevNum = (parseInt(a)*parseInt(b));
-    display.value=`${prevNum}`;
+    runningTotal = a*b;
+    display.value=`${runningTotal}`;
 }
-function divide(b,a){
-    prevNum = (parseInt(a)/parseInt(b));
-    display.value=`${prevNum}`;
+function divide(a,b){
+    runningTotal = (a/b);
+    display.value=`${runningTotal.toString().substring(0,9)}`;
 }
 
-function operate(){
-    if(curNum){
+function processor(){
+    num1 = parseFloat(num1);
+    num2 = parseFloat(num2);
+    let len1 = precision(num1);
+    let len2 = precision(num2);
+    let len;
+
+    if(len1>len2 ? len = len1:len = len2);
     
+    return len+1;
+}
+
+function precision(a) {
+    var e = 1;
+    while (Math.round(a * e) / e !== a) e *= 10;
+    return Math.log(e) / Math.LN10;
+  }
+
+function operate(){
+    if(num2){
+        processor();
         switch(curOp){
         
         case "+":
-            operated = true;
-            add(curNum, prevNum);
+            add(num1, num2);
             break;
         case "-":
-            operated = true;
-            subtract(curNum, prevNum);
+            subtract(num1, num2);
             break;
         case "*":
-            operated = true;
-            multiply(curNum, prevNum);
+            multiply(num1, num2);
             break;
         case "/":
-            operated = true;
-            divide(curNum, prevNum);
+            divide(num1, num2);
             break;
         default:
             console.log("Invalid Operator");
             clear();
     }
 
-    curOp = "";
-    curNum = '';
+    curOp = null;
+    num1 = "";
+    num2 = "";
+    prevButton = "=";
     }
 }
 
 function queueNum(e){
     let thisNum = e.target.innerText;
 
-    if(prevButton == "" || prevButton == "number"){
-        curNum += thisNum;
-        display.value=`${thisNum}`;
+    
+    if(curOp == null){
+        if (thisNum == "." && num1.includes(thisNum)){
+            return;
+        }
+        num1 += thisNum;
+        display.value = `${num1}`;
     }
     else{
-        curNum = thisNum;
-        display.value=`${thisNum}`;
+        if(thisNum == "." && num2.includes(thisNum)){
+            return;
+        } 
+        num2 += thisNum;
+        display.value = `${num2}`;
     }
     prevButton = "number";
 }
 
 function queueOp(e){
-   if(prevButton == "number" && !(curNum =='') &&(!operated)){
-       prevNum = curNum;
-       curNum = "";
-       console.log("fucg");
-       curOp = e.target.innerText;
-       
-       display.value=`${curOp}`;
-   }
-   else if(operated) {
-        operated = false;
+    if(num1 != '' && num2 != ''){
+        operate();
+        num1 = runningTotal;
         curOp = e.target.innerText;
         display.value=`${curOp}`;
-        curNum = '';
-   }
-   else if(!operated){
-        operate()
-        curOp = e.target.innerText;
-        display.value=`${curOp}`;
-        curNum = '';
-   }
-   prevButton = "op";
+    }
 
+    else if(num1 != '' && prevButton == "number"){
+        curOp = e.target.innerText;
+        display.value=`${curOp}`;
+    }
+    else if(prevButton == "="){
+        num1 = runningTotal;
+        curOp = e.target.innerText;
+        display.value=`${curOp}`;
+    }
+    else if(prevButton == "number"){
+        curOp = e.target.innerText;
+        display.value=`${curOp}`;
+    }
+    prevbutton = "op";
 }
-*/
+
 
 function clear(){
-    curNum = '';
+    num1 = '';
     runningTotal = 0;
-    prevNum = 0;
-    curOp = '';
-    operated = false;
-    display.value = "0";
+    num2 = '';
+    curOp = null;
+    display.value = '';
+    prevButton = '';
 }
