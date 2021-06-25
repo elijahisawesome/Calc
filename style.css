@@ -1,0 +1,77 @@
+button{
+    display: grid;
+    background: darkgrey;
+    text-align: center;
+    border-style: solid;
+    border-color: rgb(199, 198, 198);
+    border-radius: 15%;
+}
+button:active{
+    border-color: rgb(182, 182, 182);
+}
+button:hover{
+    background: rgb(142, 142, 143);
+}
+.subDisp{
+    height: 15px;
+    width: 150px;
+    font-size: 10px;
+}
+
+.ops{
+    background: rgb(94, 128, 94)
+}
+.ops:hover{
+    background: rgb(73, 109, 73)
+}
+
+.eval{
+    grid-column-end: span 2;
+    background: salmon;
+}
+.eval:hover{
+    background: rgb(245, 118, 104);
+}
+
+input{
+    border-style: solid;
+    border-radius: 3%;
+    font-size: 11px;
+}
+input:focus{
+    outline: none;
+    background: white;
+}
+
+.buttonsBlock{
+    display: grid;
+    grid-gap: 2px 2px;
+    grid-template-columns: 36px 36px 36px 36px;
+    grid-template-rows: auto;
+    width: 150px;
+    height: 150px;
+}
+
+
+.fullBody{
+    
+    width: 150px;
+    height: 205px;
+    background: lightgray;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+    border-radius: 2%;
+    -moz-transform: scale(1.75);
+    position:fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -102px;
+    margin-left: -75px;
+
+
+}
+
+.disp{
+    width: 150px;
+}
