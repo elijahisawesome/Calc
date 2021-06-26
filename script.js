@@ -12,37 +12,29 @@ let runningTotal = 0;
 let curOp = null;
 let prevButton = '';
 
-backspace.addEventListener('click', deleteChars);
-
-nums.forEach(num =>{
-num.addEventListener('click', preQueueNum);
-num.type = "button";
-});
-
 //removes focus when buttons are clicked. Needed to enable mixed mouse and keyboard inputs.
 document.addEventListener('click', function(e) { if(document.activeElement.toString() == '[object HTMLButtonElement]'){ document.activeElement.blur(); } });
-
-ops.forEach(op =>{
-    op.addEventListener("click", preQueueOp);
-});
-
+backspace.addEventListener('click', deleteChars);
 evaluate.addEventListener('click', operate);
 AC.addEventListener('click', clear);
-
 document.addEventListener('keypress', logKey);
+
+nums.forEach(num =>{
+    num.addEventListener('click', () => queueNum(num.innerText));
+});
+ops.forEach(
+    op =>{op.addEventListener("click", () => queueOp(op.innerText));
+});
+
 function logKey(e){
     if((parseInt(e.charCode) >= 48 && parseInt(e.charCode) <= 57) || e.key == "."){
         queueNum(e.key);
-        
-        return;
     }
     else if (e.key == "/" || e.key == "-" || e.key == "+" || e.key == "*"){
         queueOp(e.key);
-        return;
     }
     else if(e.key == "Enter"){
         operate();
-        return;
     }
 }
 
@@ -57,13 +49,10 @@ function deleteChars(){
         case "number2":
             num2 = "";
             break;
-        case "=":
-            return;
         default:
             break;
     }
     display.value = "";
-
 }
 
 function add(a,b){
@@ -77,7 +66,8 @@ function multiply(a,b){
 }
 function divide(a,b){
     if(b == "0"){
-        display.value = "Error!";
+        clear();
+        display.value = "Error! Cannot Divide by 0";
         return;
     }
     runningTotal = (a/b);
@@ -87,7 +77,7 @@ function divide(a,b){
 
 function operate(){
     if(num2 !== ""){
-
+        prevButton = "=";
         switch(curOp){
         
         case "+":
@@ -112,17 +102,10 @@ function operate(){
     curOp = null;
     num1 = "";
     num2 = "";
-    prevButton = "=";
     }
-}
-function preQueueNum(e){
-    queueNum(e.target.innerText);
-    console.log(e);
 }
 
 function queueNum(thisNum){
-    //let thisNum = e.target.innerText;
-
     if(curOp == null){
         if (thisNum == "." && num1.includes(thisNum)){
             return;
@@ -142,16 +125,10 @@ function queueNum(thisNum){
 }
 
 function negate(num){
-
     if(num.includes("-")){
         return num.toString().slice(1);
     }
     return ("-"+num.toString());
-    
-}
-
-function preQueueOp(e){
-    queueOp(e.target.innerText);
 }
 
 function queueOp(e){
@@ -169,7 +146,6 @@ function queueOp(e){
             runningTotal*= -1;
             display.value = `${runningTotal}`;
         }
-
         return;
     }
     //all other operation logic
@@ -189,17 +165,13 @@ function queueOp(e){
         curOp = e;
         display.value=`${curOp}`;
     }
-    else if(prevButton.includes("number")){
-        curOp = e;
-        display.value=`${curOp}`;
-    }
     prevbutton = "op";
 }
 
 function clear(){
     num1 = '';
-    runningTotal = 0;
     num2 = '';
+    runningTotal = 0;
     curOp = null;
     display.value = '';
     subDisplay.value = '';
