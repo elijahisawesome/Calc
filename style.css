@@ -18,6 +18,39 @@ button:hover{
     font-size: 10px;
 }
 
+@keyframes rotateTitle {
+    0%{ 
+        transform: rotate(5deg) scale(.9);
+    }
+    49.99%{
+        transform: rotate(5deg) scale(.9);
+    }
+    50%{
+        transform: rotate(-4deg) scale(.95);
+    }
+    74.99%{
+        transform: rotate(-4deg) scale(.95);
+    }
+    75%{
+        transform: rotate(6deg) scale(1);
+    }
+    99.99%{
+        transform: rotate(6deg) scale(1);
+    }
+    100%{   
+        transform: rotate(5deg) scale(.9);
+    }
+}
+.title{
+    Font-size: 50px;
+    color: gold;
+    text-align: center;
+    font-family: 'Anton', sans-serif;
+    font-weight: 600;
+    animation-name: rotateTitle;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
 .ops{
     background: rgb(94, 128, 94)
 }
@@ -68,6 +101,7 @@ input:focus{
     left: 50%;
     margin-top: -102px;
     margin-left: -75px;
+    
 
 
 }

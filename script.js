@@ -16,14 +16,35 @@ backspace.addEventListener('click', deleteChars);
 
 nums.forEach(num =>{
 num.addEventListener('click', preQueueNum);
+num.type = "button";
 });
 
+//removes focus when buttons are clicked. Needed to enable mixed mouse and keyboard inputs.
+document.addEventListener('click', function(e) { if(document.activeElement.toString() == '[object HTMLButtonElement]'){ document.activeElement.blur(); } });
+
 ops.forEach(op =>{
-    op.addEventListener("click", queueOp);
+    op.addEventListener("click", preQueueOp);
 });
 
 evaluate.addEventListener('click', operate);
 AC.addEventListener('click', clear);
+
+document.addEventListener('keypress', logKey);
+function logKey(e){
+    if((parseInt(e.charCode) >= 48 && parseInt(e.charCode) <= 57) || e.key == "."){
+        queueNum(e.key);
+        
+        return;
+    }
+    else if (e.key == "/" || e.key == "-" || e.key == "+" || e.key == "*"){
+        queueOp(e.key);
+        return;
+    }
+    else if(e.key == "Enter"){
+        operate();
+        return;
+    }
+}
 
 function deleteChars(){
     switch (prevButton){
@@ -62,18 +83,7 @@ function divide(a,b){
     runningTotal = (a/b);
 }
 
-document.addEventListener('keypress', logKey);
-function logKey(e){
-    if((parseInt(e.charCode) >= 48 && parseInt(e.charCode) <= 57) || e.key == "."){
-        queueNum(e.key);
-    }
-    else if (e.key == "/" || e.key == "-" || e.key == "+" || e.key == "*"){
-        queueOp(e.key);
-    }
-    else if(e.key == "Enter"){
-        operate();
-    }
-}
+
 
 function operate(){
     if(num2 !== ""){
@@ -107,6 +117,7 @@ function operate(){
 }
 function preQueueNum(e){
     queueNum(e.target.innerText);
+    console.log(e);
 }
 
 function queueNum(thisNum){
