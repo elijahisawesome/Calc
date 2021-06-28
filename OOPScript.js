@@ -59,7 +59,7 @@ class Calculator{
         this.runningTotal = (this.num1/this.num2);
     }
     clear(){
-        this.changeState(new clearState(self.fsm))
+        this.changeState(new clearState(this))
         this.runningTotal = 0;
         this.curOp = null;
         this.num1 = "";
@@ -71,13 +71,17 @@ class Calculator{
 }
 let calculator = new Calculator();
 
+document.addEventListener('click', function(e) { if(document.activeElement.toString() == '[object HTMLButtonElement]'){ document.activeElement.blur(); } });
 const display = document.querySelector(".disp");
 const subDisplay = document.querySelector(".subDisp");
 const Buttons = document.querySelectorAll("button");
+document.addEventListener('keypress', keyPress);
 Buttons.forEach(button => {
-    button.addEventListener('click',() => calculator.state.handle(button));
+    button.addEventListener('click',() => calculator.state.handle(button.innerText));
 })
-
+function keyPress(e){
+    calculator.state.handle(e.key);
+}
 
 function alreadyHasDecimal(val){
     let has = true;
@@ -86,7 +90,12 @@ function alreadyHasDecimal(val){
     }
     return has;
 }
-
+function negate(num){
+    if(num.includes("-")){
+        return num.toString().slice(1);
+    }
+    return ("-"+num.toString());
+}
 
 
 function clearState(_fsm){
@@ -95,10 +104,10 @@ function clearState(_fsm){
 
     this.handle = function handle(e){
 
-        if((parseInt(e.innerText) >= 0 && parseInt(e.innerText) <= 9) || e.innerText == ".")
+        if((parseInt(e) >= 0 && parseInt(e) <= 9) || e == ".")
             {
-                display.value = e.innerText;
-                self.fsm.num1 += e.innerText;
+                display.value = e;
+                self.fsm.num1 += e;
                 self.fsm.changeState(new state1(self.fsm));
                 
         }
@@ -110,22 +119,53 @@ function state1(_fsm){
     let self = this;
     this.fsm = _fsm;
     this.handle = function handle(e){
-        if(parseInt(e.innerText) >= 0 && parseInt(e.innerText) <= 9 || e.innerText == "."){
-            if(alreadyHasDecimal(self.fsm.num1) && e.innerText == "."){
+        if(parseInt(e) >= 0 && parseInt(e) <= 9 || e == "."){
+            if(alreadyHasDecimal(self.fsm.num1) && e == "."){
                 return;
             }
-            self.fsm.num1 += e.innerText;
+            self.fsm.num1 += e;
             display.value = self.fsm.num1;
         }
-        else if(e.innerText == "/" || e.innerText == "+" || e.innerText == "-" || e.innerText == "*"){
-            self.fsm.curOp = e.innerText;
-            display.value = e.innerText;
-            self.fsm.changeState(new state2(self.fsm));
+        else if(e == "/" || e == "+" || e == "-" || e == "*"){
+            self.fsm.curOp = e;
+            display.value = e;
+            self.fsm.changeState(new opState(self.fsm));
         }
-        else if (e.innerText == "AC"){
+        else if (e == "AC"){
             self.fsm.clear();
         }
+        else if (e == "BK"){
+            self.fsm.num1 = "";
+            display.value = "";
+        }
+        else if (e == "+/-"){
+            self.fsm.num1 = negate(self.fsm.num1);
+            display.value = self.fsm.num1;
+        }
 
+    }
+}
+
+function opState(_fsm){
+    let self = this;
+    this.fsm = _fsm;
+    this.handle = function handle(e){
+        if(parseInt(e) >= 0 && parseInt(e) <= 9 || e == "."){
+            self.fsm.num2 = e;
+            display.value = e;
+            self.fsm.changeState(new state2(self.fsm));
+        }
+        else if(e == "/" || e == "+" || e == "-" || e == "*"){
+            self.fsm.curOp = e;
+            display.value = e;
+        }
+        else if (e == "BK"){
+            self.fsm.curOp = null;
+            display.value = "";
+        }
+        else if (e == "AC"){
+            self.fsm.clear();
+        }
     }
 }
 
@@ -133,27 +173,34 @@ function state2(_fsm){
     let self = this;
     this.fsm = _fsm;
     this.handle = function handle(e){
-        if((parseInt(e.innerText) >= 0 && parseInt(e.innerText) <= 9) || e.innerText == "."){
-            if(alreadyHasDecimal(self.fsm.num2)  && e.innerText == "."){
+        if((parseInt(e) >= 0 && parseInt(e) <= 9) || e == "."){
+            if(alreadyHasDecimal(self.fsm.num2)  && e == "."){
                 return;
             }
-            self.fsm.num2 += e.innerText;
+            self.fsm.num2 += e;
             display.value = self.fsm.num2;
         }
-        else if((e.innerText == "/" || e.innerText == "+" || e.innerText == "-" || e.innerText == "*") && self.fsm.num2 != ""){
-            display.value = e.innerText;
+        else if((e == "/" || e == "+" || e == "-" || e == "*") && self.fsm.num2 != ""){
             self.fsm.operate();
-            self.fsm.curOp = e.innerText;
+            display.value = e;
+            self.fsm.curOp = e;
             self.fsm.num1 = self.fsm.runningTotal;
-            self.fsm.changeState(new state2(self.fsm));
+            self.fsm.changeState(new opState(self.fsm));
         }
-        else if(e.innerText == "=" && self.fsm.num2 != ""){
-            
+        else if(e == "=" && self.fsm.num2 != ""){
             self.fsm.operate();
             self.fsm.changeState(new evalState(self.fsm));
         }
-        else if (e.innerText == "AC"){
+        else if (e == "AC"){
             self.fsm.clear();
+        }
+        else if (e == "BK"){
+            self.fsm.num2 = "";
+            display.value = "";
+        }
+        else if (e == "+/-"){
+            self.fsm.num2 = negate(self.fsm.num2);
+            display.value = self.fsm.num2;
         }
     }
 }
@@ -163,22 +210,27 @@ function evalState(fsm){
     this.fsm = fsm;
     
     this.handle = function handle(e){
-        if (e.innerText == "AC"){
+        if (e == "AC"){
             self.fsm.clear();
         }
-        else if(parseInt(e.innerText) >= 0 && parseInt(e.innerText) <= 9 || e.innerText == "."){
-            display.value = e.innerText;
-            self.fsm.num1 = e.innerText;
+        else if(parseInt(e) >= 0 && parseInt(e) <= 9 || e == "."){
+            display.value = e;
+            self.fsm.num1 = e;
             self.fsm.changeState(new state1(self.fsm));
         }
-        else if(e.innerText == "/" || e.innerText == "+" || e.innerText == "-" || e.innerText == "*"){
-            display.value = e.innerText;
+        else if(e == "/" || e == "+" || e == "-" || e == "*"){
+            display.value = e;
             self.fsm.num1 = self.fsm.runningTotal;
-            self.fsm.curOp = e.innerText;
-            self.fsm.changeState(new state2(self.fsm));
+            self.fsm.curOp = e;
+            self.fsm.changeState(new opState(self.fsm));
+        }
+        else if(e == "BK"){
+            self.fsm.clear();
+        }
+        else if (e == "+/-"){
+            self.fsm.runningTotal *= -1;
+            display.value = self.fsm.runningTotal;
         }
     }
 
 }
-
-
